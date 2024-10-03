@@ -2,6 +2,7 @@ package com.example.primeiraaplicacao
 
 import android.annotation.SuppressLint
 import android.content.ContentValues
+import android.content.ContentValues.TAG
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
@@ -32,6 +33,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -61,12 +63,22 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
+        setContent{
+            FirebaseFirestore{
+                Surface(
+                    modifier = Modifier.fillMaxSize(),
+                    color = colorScheme.background
+                )
+            } {
+                App(db)
             }
         }
+    }
+}
 
 
 
+@SuppressLint("UnrememberedMutableState")
 @Composable
 fun App(db : FirebaseFirestore){
     var nome by remember {
@@ -146,17 +158,66 @@ fun App(db : FirebaseFirestore){
             Arrangement.Center
         ){
             Button(onClick = {
-                val city = hashMapOf(
+                val pessoas = hashMapOf(
                     "nome" to nome,
                     "telefone" to telefone
                 )
-                db.collection("Clientes").document("PrimeiroCliente")
-                    .set(city)
-                    .addOnSuccessListener { Log.d(ContentValues.TAG, "DocumentSnapshot successfully written")}
+                db.collection("Clientes").add(pessoas)
+                    .addOnSuccessListener { documentReference -> Log.d(ContentValues.TAG, "DocumentSnapshot successfully written with ID: ${documentReference.id}")}
                     .addOnFailureListener {e -> Log.w(ContentValues.TAG,"Error writing document", e)}
             }) {
                 Text(text = "Cadastrar")
             }
+
         }
+
+        Row(
+            Modifier
+                .fillMaxWidth()
+                .padding(20.dp)
+     ) {
+
+     }
+        Row(
+            Modifier
+                .fillMaxWidth()
+        ) {
+        Column(
+            Modifier
+                .fillMaxWidth(0.3f)
+        ){
+            val clientes = mutableStateListOf<HashMap<String, String>>()
+            db.collection("Clientes")
+                 
+                 .get()
+                 .addOnSuccessListener { documents ->
+                     for (document in documents) {
+                         val lista = hashMapOf(
+                             "nome" to "${document.data.get("nome")}",
+                             "telefone" to "${document.data.get("telefone")}"
+                         )
+                         clientes.add(lista)
+                         Log.d(TAG, "${document.id} => ${document.data}")
+                     }
+                 }
+
+                 .addOnFailureListener { exception ->
+                     Log.w(TAG, "Error getting docs: ", exception)
+                 }
+            LazyColumn (modifier = Modifier.fillMaxWidth()) {
+                items(clientes) { cliente ->
+                    Row(modifier = Modifier.fillMaxWidth()) {
+                        Column(modifier = Modifier.weight(0.5f)) {
+                            Text(text = cliente["nome"] ?: "--")
+                        }
+                        Column(modifier = Modifier.weight(0.5f)) {
+                            Text(text = cliente["telefone"] ?: "---")
+                        }
+                    }
+
+                }
+
+            }
+        } }
     }
 }
