@@ -61,163 +61,159 @@ class MainActivity : ComponentActivity() {
 
     val db = Firebase.firestore
 
+    @Composable
+    fun Primeiraaplicacao(content: @Composable () -> Unit) {
+        MaterialTheme {
+            content()
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContent{
-            FirebaseFirestore{
+        setContent {
+            Primeiraaplicacao{
                 Surface(
                     modifier = Modifier.fillMaxSize(),
-                    color = colorScheme.background
-                )
-            } {
-                App(db)
+                    color = MaterialTheme.colorScheme.background
+                ) {
+                    App(db)
+                }
             }
         }
     }
-}
 
-
-
-@SuppressLint("UnrememberedMutableState")
-@Composable
-fun App(db : FirebaseFirestore){
-    var nome by remember {
-        mutableStateOf("")
-    }
-    var telefone by remember {
-        mutableStateOf("")
-    }
-    Column(
-        Modifier
-            .fillMaxWidth()
-    ) {
-        Row(
-            Modifier
-                .fillMaxWidth()
-                .padding(20.dp)
-        ) {
+    @SuppressLint("UnrememberedMutableState")
+    @Composable
+    fun App(db : FirebaseFirestore) {
+        var nome by remember {
+            mutableStateOf("")
         }
-        Row(
-            Modifier
-                .fillMaxWidth(),
-            Arrangement.Center
-        ) {
-            Text(text = "App Firebase Firestore")
+        var telefone by remember {
+            mutableStateOf("")
         }
-        Row(
-            Modifier
-                .fillMaxWidth()
-                .padding(20.dp)
-        ) {
-        }
-        Row(
-            Modifier
-                .fillMaxWidth()
-        ) {
-            Column(
-                Modifier
-                    .fillMaxWidth(0.3f)
-            ) {
-                Text(text = "Nome:")
-            }
-            Column(
-            ) {
-                TextField(
-                    value = nome,
-                    onValueChange = { nome = it  }
-                )
-            }
-        }
-        Row(
-            Modifier
-                .fillMaxWidth()
-        ) {
-            Column(
-                Modifier
-                    .fillMaxWidth(0.3f)
-            ) {
-                Text(text = "Telefone:")
-            }
-            Column(
-            ) {
-                TextField(
-                    value = telefone,
-                    onValueChange = { telefone = it  }
-                )
-            }
-        }
-        Row(
-            Modifier
-                .fillMaxWidth()
-                .padding(20.dp)
-        ) {
-        }
-        Row(
-            Modifier
-                .fillMaxWidth(),
-            Arrangement.Center
-        ){
-            Button(onClick = {
-                val pessoas = hashMapOf(
-                    "nome" to nome,
-                    "telefone" to telefone
-                )
-                db.collection("Clientes").add(pessoas)
-                    .addOnSuccessListener { documentReference -> Log.d(ContentValues.TAG, "DocumentSnapshot successfully written with ID: ${documentReference.id}")}
-                    .addOnFailureListener {e -> Log.w(ContentValues.TAG,"Error writing document", e)}
-            }) {
-                Text(text = "Cadastrar")
-            }
-
-        }
-
-        Row(
-            Modifier
-                .fillMaxWidth()
-                .padding(20.dp)
-     ) {
-
-     }
-        Row(
-            Modifier
-                .fillMaxWidth()
-        ) {
         Column(
             Modifier
-                .fillMaxWidth(0.3f)
-        ){
-            val clientes = mutableStateListOf<HashMap<String, String>>()
-            db.collection("Clientes")
-                 
-                 .get()
-                 .addOnSuccessListener { documents ->
-                     for (document in documents) {
-                         val lista = hashMapOf(
-                             "nome" to "${document.data.get("nome")}",
-                             "telefone" to "${document.data.get("telefone")}"
-                         )
-                         clientes.add(lista)
-                         Log.d(TAG, "${document.id} => ${document.data}")
-                     }
-                 }
-
-                 .addOnFailureListener { exception ->
-                     Log.w(TAG, "Error getting docs: ", exception)
-                 }
-            LazyColumn (modifier = Modifier.fillMaxWidth()) {
-                items(clientes) { cliente ->
-                    Row(modifier = Modifier.fillMaxWidth()) {
-                        Column(modifier = Modifier.weight(0.5f)) {
-                            Text(text = cliente["nome"] ?: "--")
-                        }
-                        Column(modifier = Modifier.weight(0.5f)) {
-                            Text(text = cliente["telefone"] ?: "---")
-                        }
-                    }
-
-                }
-
+                .fillMaxWidth()
+        ) {
+            Row(
+                Modifier
+                    .fillMaxWidth()
+                    .padding(20.dp)
+            ) {
             }
-        } }
+            Row(
+                Modifier
+                    .fillMaxWidth(),
+                Arrangement.Center
+            ) {
+                Text(text = "App Firebase Firestore")
+            }
+            Row(
+                Modifier
+                    .fillMaxWidth()
+                    .padding(20.dp)
+            ) {
+            }
+            Row(
+                Modifier
+                    .fillMaxWidth()
+            ) {
+                Column(
+                    Modifier
+                        .fillMaxWidth(0.3f)
+                ) {
+                    Text(text = "Nome:")
+                }
+                Column(
+                ) {
+                    TextField(
+                        value = nome,
+                        onValueChange = { nome = it }
+                    )
+                }
+            }
+            Row(
+                Modifier
+                    .fillMaxWidth()
+            ) {
+                Column(
+                    Modifier
+                        .fillMaxWidth(0.3f)
+                ) {
+                    Text(text = "Telefone:")
+                }
+                Column(
+                ) {
+                    TextField(
+                        value = telefone,
+                        onValueChange = { telefone = it }
+                    )
+                }
+            }
+            Row(
+                Modifier
+                    .fillMaxWidth()
+                    .padding(20.dp)
+            ) {
+            }
+            Row(
+                Modifier
+                    .fillMaxWidth(),
+                Arrangement.Center
+            ) {
+                Button(onClick = {
+
+                    val city = hashMapOf(
+                        "nome" to nome,
+                        "telefone" to telefone
+                    )
+
+                    db.collection("Clientes").document("PrimeiroCliente")
+                        .set(city)
+                        .addOnSuccessListener { Log.d(ContentValues.TAG, "Succefully written") }
+                        .addOnFailureListener { e -> Log.w(ContentValues.TAG, "Errow writing doc", e)}
+                }) {
+                    Text(text = "Cadastrar")
+                }
+                Row(
+                    Modifier
+                        .fillMaxWidth(0.5f)
+                ) {
+                    Text(text = "Nome:")
+                }
+                Column(
+                    Modifier
+                        .fillMaxWidth(0.5f)
+                ) {
+                    Text(text = "Telefone:")
+                }
+            }
+            Row(
+                Modifier
+                    .fillMaxWidth()
+            ) {
+                Column(
+                    Modifier
+                        .fillMaxWidth(0.3f)
+                ) {
+                    val clientes = mutableStateListOf<HashMap<String, String>>()
+                    db.collection("Clientes")
+                        .get()
+                        .addOnSuccessListener { documents ->
+                            for (document in documents) {
+                                val lista = hashMapOf(
+                                    "nome" to "${document.data.get("nome")}",
+                                    "telefone" to "${document.data.get("telefone")}"
+                                )
+                                clientes.add(lista)
+                                Log.d(TAG, "${document.id} => ${document.data}")
+                            }
+                        }
+                        .addOnFailureListener{ exception ->
+                            Log.w(TAG, "Error getting documents: ", exception)
+                        }
+                }
+            }
+        }
     }
 }
